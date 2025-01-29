@@ -107,8 +107,11 @@ $$
 I apply the notion of first-order Taylor series linear approximation to linearize the dynamics about the hover state. This process involves computing the Jacobian matrix of the state equations with respect to the states, computing the Jacobian matrix with respect to the input variables, evaluating both Jacobian matrices at the hover state, and combining them with the state and input vectors. The resulting linear model is valid for states near the hover state.
 
 $$
+
+\begin{equation}
 \dot{\mathbf{x}} =
 \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{x} +
 \left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{u} =
 \mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
+\end{equation}
 $$
