@@ -36,14 +36,13 @@ $$
 
 ## Defining the Quadcopter's Control inputs
 I define the quadcopter's control inputs. There are four control inputs. The first is the total thrust force produced by the quadcopter. This force is always directed in the positive z-direction of the body frame. The second, third, and fourth control input are the roll moment, the pitch moment, and the yaw moment, in that order. 
-$$
 
+$$
 \begin{equation}
 \mathbf{u} =
 \begin{bmatrix}
 F_c & M_x & M_y & M_z 
 \end{bmatrix}^\top
-
 \end{equation}
 $$
 
