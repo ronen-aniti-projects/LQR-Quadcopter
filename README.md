@@ -114,3 +114,124 @@ $$
 \mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
 \end{equation}
 $$
+
+Furthermore, the resulting state-space model is linear time-invariant, therefore well suited for LQR controller design. The system's $\mathbf{A}$ and $\mathbf{B}$ are the following.
+
+$$
+\begin{equation}
+\begin{aligned}
+   \mathbf{A} &= \begin{bmatrix}
+       0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+       0 & 0 & 0 & 0 & g & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & -g & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+       0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 
+   \end{bmatrix}, \\
+   \mathbf{B} &= \begin{bmatrix}
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+         0 & 0 & 0 & 0 \\
+       \frac{1}{m} & 0 & 0 & 0 \\
+         0 & \frac{1}{I_x} & 0 & 0 \\
+         0 & 0 & \frac{1}{I_y} & 0 \\
+         0 & 0 & 0 & \frac{1}{I_z}
+   \end{bmatrix}
+\end{aligned}
+\end{equation}
+$$
+
+## Verifying controllability
+I verify that the plant is controllable. A system is controllable when the control inputs are capable of driving the system, within finite time, from any initial state in the state space to any final state in the state space. For LTI systems, a sufficient condition for controllability is that the rank of the controllability test matrix, $\mathbf{N}$, equals the dimension of the state space, $k$. 
+\begin{equation}
+    \mathbf{N} = \begin{bmatrix} \mathbf{B} & \mathbf{A}\mathbf{B} & \mathbf{A}^2\mathbf{B} & \cdots & \mathbf{A}^{k-1}\mathbf{B} \end{bmatrix}.
+\end{equation}
+The quadcopter system has 12 state variables, so $k$ is 12. With MATLAB, I assemble the controllability test matrix and verify $rank(\mathbf{N}) = k$, confirming that the quadcopter is controllable. 
+
+# Designing the Controller
+I design a full-state feedback controller for quadcopter hover stabilization by deriving the closed-loop dynamics and using the LQR framework to compute a suitable feedback gain matrix.
+
+## Deriving the Closed-Loop Dynamics
+In feedback control, the generated control signal is applied as an input to the plant dynamics. In full-state feedback control, the feedback controller operates on the error between the estimated state and the reference signal. In this case, the case of hover stabilization, the reference signal is the zero vector. The controller is a matrix multiplier, premultiplying a constant gain matrix $\mathbf{K}$ by the state vector.
+
+$$
+\begin{equation}
+  \mathbf{u} = - \mathbf{K} \mathbf{x}
+\end{equation}
+$$
+
+A mathematical model of the entire control loop can thus be derived by directly substituting the control law into the plant's state-space representation. The resulting model is referred to as the closed-loop system dynamics. The derivation proceeds as follows: 
+
+
+$$
+\begin{equation}
+    \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf{u}
+\end{equation}
+$$
+
+$$
+\begin{equation}
+    \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}(-\mathbf{K}\mathbf{x})
+\end{equation}
+$$
+
+$$
+\begin{equation}
+    \dot{\mathbf{x}} = \mathbf{A}\mathbf{x} - \mathbf{B}\mathbf{K}\mathbf{x}
+\end{equation}
+$$
+
+$$
+\begin{equation}
+    \dot{\mathbf{x}} = (\mathbf{A} - \mathbf{B}\mathbf{K})\mathbf{x}
+\end{equation}
+$$
+
+This closed-loop system dynamics model reveals that the stability of the system depends on the eigenvalues of the matrix $\mathbf{A}-\mathbf{B}\mathbf{K}$. If all eigenvalues have strictly negative real parts, the system is asymptotically stable. For hover control of a quadcopter, this ensures that any deviations from the equilibrium hover state—such as changes in position, orientation, or velocity—will decay to zero over time, allowing the quadcopter to maintain stability in the presence of small disturbances.
+
+It therefore follows that the feedback gain matrix must be designed to ensure that all eigenvalues of $\mathbf{A}-\mathbf{B}\mathbf{K}$ have strictly negative real parts. 
+
+## Solving for the Control Gains
+To design the full-state feedback controller, I compute the optimal gain matrix $\mathbf{K}$ using the Linear Quadratic Regulator (LQR) method. The LQR framework minimizes a cost function that balances state deviation and control effort:
+
+$$
+\begin{equation}
+    J = \int_0^\infty \left( \mathbf{x}^\top \mathbf{Q} \mathbf{x} + \mathbf{u}^\top \mathbf{R} \mathbf{u} \right) \, dt,
+\end{equation}
+$$
+
+where $\mathbf{Q}$ is a symmetric positive semidefinite matrix that penalizes deviations from the desired state, and $\mathbf{R}$ is a symmetric positive definite matrix that penalizes excessive control effort. To solve for $\mathbf{K}$, I first compute the solution $\mathbf{P}$ to the Algebraic Riccati Equation (ARE):
+
+$$
+\begin{equation}
+    \mathbf{A}^\top \mathbf{P} + \mathbf{P}\mathbf{A} - \mathbf{P}\mathbf{B}\mathbf{R}^{-1}\mathbf{B}^\top \mathbf{P} + \mathbf{Q} = 0.
+\end{equation}
+$$
+
+Once I compute $\mathbf{P}$, I derive the optimal gain matrix $\mathbf{K}$ using the equation:
+$$
+\begin{equation}
+    \mathbf{K} = \mathbf{R}^{-1}\mathbf{B}^\top \mathbf{P}.
+\end{equation}
+$$
+
+I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure~\ref{fig:enter-label} illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{closed_loop_eigenvalues (1).png}
+    \caption{The Real-Imaginary Plot of the Closed-Loop Eigenvalues when $\mathbf{Q}=\mathbf{I}_{12x12}$ and $\mathbf{R}=\mathbf{I}_{4x4}$}
+    \label{fig:enter-label}
+\end{figure}
