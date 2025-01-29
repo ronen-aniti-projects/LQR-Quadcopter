@@ -26,6 +26,7 @@ I define the quadcopter's degrees of freedom. The quadcopter has six degrees of 
 
 ## Defining the Quadcopter's State Variables
 I define the quadcopter's state variables. There are three state variables for linear position, three state variables for 3D orientation, three state variables for linear velocity, and three state variables for angular velocity. All state variables corresponding to linear position and linear velocity are world-frame coordinates. The angular displacement state variables are the Z-Y-X Euler angles. The angular velocity state variables are measured in the body frame. 
+
 $$
 \mathbf{x} =
 \begin{bmatrix}
