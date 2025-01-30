@@ -235,6 +235,7 @@ $$
 $$
 
 Once I compute $\mathbf{P}$, I derive the optimal gain matrix $\mathbf{K}$ using the equation:
+
 $$
 \begin{equation}
     \mathbf{K} = \mathbf{R}^{-1}\mathbf{B}^\top \mathbf{P}.
