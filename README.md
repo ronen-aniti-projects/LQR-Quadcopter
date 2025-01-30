@@ -255,66 +255,104 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure~\ref{fig:enter-label} illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{closed_loop_eigenvalues (1).png}
-    \caption{The Real-Imaginary Plot of the Closed-Loop Eigenvalues when $\mathbf{Q}=\mathbf{I}_{12x12}$ and $\mathbf{R}=\mathbf{I}_{4x4}$}
-    \label{fig:enter-label}
-\end{figure}
+### Figure: Real-Imaginary Plot of the Closed-Loop Eigenvalues
 
-\subsection{Improving Controller Performance}
+![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](Media/closed_loop_eigenvalues.png)
+
+**Figure:** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I₁₂ₓ₁₂** and **R** = **I₄ₓ₄**
+
+
+## Improving Controller Performance
 I improve the controller performance by examining the settling time required for all quadcopter states to return to equilibrium following a small initial perturbation from hover. To achieve this, I adjust the weighting matrices in the LQR cost function, changing the balance between penalizing state deviation and penalizing control effort.
 
 Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to all control inputs. Under these conditions, and with an initial perturbation of $-0.025$ applied to all states, I simulate the closed-loop system and measure a settling time of approximately 1.91 seconds. To achieve faster stabilization, I reduce the penalty on control effort by choosing $\mathbf{R} = 0.1\mathbf{I}$, allowing the controller to respond more aggressively to deviations.
 
 With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure~\ref{fig:control_efforts} compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, Figure~\ref{fig:closed_loop_variants} compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{control_efforts_comparer.png}
-    \caption{Control Inputs for the Balanced ($\mathbf{R} = \mathbf{I}$) and More Aggressive ($\mathbf{R} = 0.1\mathbf{I}$) Configurations}
-    \label{fig:control_efforts}
-\end{figure}
+### Figure: Control Inputs and Closed-Loop Eigenvalues for Different Configurations
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{closed_loop_variants.png}
-    \caption{Closed-Loop Eigenvalues for the Balanced ($\mathbf{R} = \mathbf{I}$) and More Aggressive ($\mathbf{R} = 0.1\mathbf{I}$) Controllers}
-    \label{fig:closed_loop_variants}
-\end{figure}
+#### Control Inputs for Balanced and More Aggressive Configurations
+![Control Inputs for Balanced and More Aggressive Configurations](Media/control_efforts_comparison.png)
+
+**Figure:** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
+
+#### Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers
+![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](Media/closed_loop_variants.png)
+
+**Figure:** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
+
 
 For this project, I select the more aggressive controller for its reduced settling time. However, I acknowledge that in practice, factors such as actuator saturation, component constraints, and energy usage must be carefully considered to ensure the chosen parameters are appropriate for the physical system.
 
 
-\section{Designing the Observer} I design a state estimator for the quadcopter system. The observer reconstructs the full state vector from available output measurements, even when some states are not directly measurable. To achieve this, I derive the observer error dynamics, verify the system’s observability, solve for the observer gains, and verify the expected behavior of the observer.
+## Designing the Observer 
+I design a state estimator for the quadcopter system. The observer reconstructs the full state vector from available output measurements, even when some states are not directly measurable. To achieve this, I derive the observer error dynamics, verify the system’s observability, solve for the observer gains, and verify the expected behavior of the observer.
 
-\subsection{Verifying Observability}
- I verify that the quadcopter system is observable. Observability is the property that determines whether the observer can reconstruct the entire state vector from the available outputs and known inputs over time. For LTI systems, a sufficient condition for observability is that the rank of the observability matrix, $\mathbf{O}$, equals the dimension of the state space, $k$. I write the observability matrix as \begin{equation} \mathbf{O} = \begin{bmatrix} \mathbf{C}^\top & (\mathbf{C}\mathbf{A})^\top & (\mathbf{C}\mathbf{A}^2)^\top & \cdots & (\mathbf{C}\mathbf{A}^{k-1})^\top \end{bmatrix}^\top. \label{eq:observability_matrix_column} \end{equation}
+### Verifying Observability
+ I verify that the quadcopter system is observable. Observability is the property that determines whether the observer can reconstruct the entire state vector from the available outputs and known inputs over time. For LTI systems, a sufficient condition for observability is that the rank of the observability matrix, $\mathbf{O}$
+ , equals the dimension of the state space, $k$
+ . I write the observability matrix as 
+ 
+ $$
+ \begin{equation} \mathbf{O} = \begin{bmatrix} \mathbf{C}^\top & (\mathbf{C}\mathbf{A})^\top & (\mathbf{C}\mathbf{A}^2)^\top & \cdots & (\mathbf{C}\mathbf{A}^{k-1})^\top \end{bmatrix}^\top.  \end{equation}
+$$
 
 I test observability using three variations of the output matrix. First, I assume that all states are measured, so $\mathbf{C}$ is the $12 \times 12$ identity matrix. Next, I consider a partial measurement scenario by constructing $\mathbf{C}'$, which is identical to $\mathbf{C}$ except that it omits the row corresponding to the roll angle measurement. Finally, I construct $\mathbf{C}''$ by further omitting the row corresponding to the pitch angle measurement. In all three cases, I use MATLAB to form $\mathbf{O}$ and verify that its rank equals 12. This confirms that the quadcopter system remains observable even when some states are not directly measured. 
 
 
-\subsection{Deriving the Observer's Error Dynamics} 
- I derive the error dynamics for the observer. The observer estimates the state vector, $\hat{\mathbf{x}}$, using the system outputs and control inputs. The general form of the observer is given by \begin{equation} \dot{\hat{\mathbf{x}}} = \mathbf{A}\hat{\mathbf{x}} + \mathbf{B}\mathbf{u} + \mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}}), \end{equation} where $\mathbf{L}$ is the observer gain matrix, $\mathbf{y}$ is the measured output vector, and $\mathbf{C}$ is the output matrix. The term $\mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}})$ adjusts the observer’s estimate to reduce the difference between the measured and estimated outputs.
-I define the observer error as \begin{equation} \mathbf{e} = \mathbf{x} - \hat{\mathbf{x}}. \end{equation}
-To derive the error dynamics, I compute the time derivative of the error: \begin{equation} \dot{\mathbf{e}} = \dot{\mathbf{x}} - \dot{\hat{\mathbf{x}}}. \end{equation}
-Substituting the plant dynamics, $\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf{u}$, and the observer equation, I write \begin{equation} \dot{\mathbf{e}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf{u} - \big(\mathbf{A}\hat{\mathbf{x}} + \mathbf{B}\mathbf{u} + \mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}})\big). \end{equation}
-Simplifying and grouping terms, I find \begin{equation} \dot{\mathbf{e}} = \mathbf{A}\mathbf{x} - \mathbf{A}\hat{\mathbf{x}} - \mathbf{L}(\mathbf{C}\mathbf{x} - \mathbf{C}\hat{\mathbf{x}}). \end{equation}
-Using the definitions of the error, $\mathbf{e} = \mathbf{x} - \hat{\mathbf{x}}$, and the measured output, $\mathbf{y} = \mathbf{C}\mathbf{x}$, I rewrite the equation as \begin{equation} \dot{\mathbf{e}} = \mathbf{A}(\mathbf{x} - \hat{\mathbf{x}}) - \mathbf{L}\mathbf{C}(\mathbf{x} - \hat{\mathbf{x}}). \end{equation}
-Factoring out $\mathbf{e}$, I express the error dynamics as \begin{equation} \dot{\mathbf{e}} = (\mathbf{A} - \mathbf{L}\mathbf{C})\mathbf{e}. \end{equation}
+### Deriving the Observer's Error Dynamics
+ I derive the error dynamics for the observer. The observer estimates the state vector, $\hat{\mathbf{x}}$, using the system outputs and control inputs. The general form of the observer is given by 
+ 
+ $$
+ \begin{equation} \dot{\hat{\mathbf{x}}} = \mathbf{A}\hat{\mathbf{x}} + \mathbf{B}\mathbf{u} + \mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}}), \end{equation}
+ $$
+
+ where $\mathbf{L}$ is the observer gain matrix, $\mathbf{y}$ is the measured output vector, and $\mathbf{C}$ is the output matrix. The term $\mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}})$ adjusts the observer’s estimate to reduce the difference between the measured and estimated outputs.
+I define the observer error as 
+
+$$
+\begin{equation} \mathbf{e} = \mathbf{x} - \hat{\mathbf{x}}. \end{equation}
+$$
+
+To derive the error dynamics, I compute the time derivative of the error: 
+
+$$
+\begin{equation} \dot{\mathbf{e}} = \dot{\mathbf{x}} - \dot{\hat{\mathbf{x}}}. \end{equation}
+$$
+
+Substituting the plant dynamics, $\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf
+{u}$, and the observer equation, I write 
+
+$$\begin{equation} \dot{\mathbf{e}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf{u} - \big(\mathbf{A}\hat{\mathbf{x}} + \mathbf{B}\mathbf{u} + \mathbf{L}(\mathbf{y} - \mathbf{C}\hat{\mathbf{x}})\big). \end{equation}
+$$
+
+Simplifying and grouping terms, I find 
+$$
+\begin{equation} \dot{\mathbf{e}} = \mathbf{A}\mathbf{x} - \mathbf{A}\hat{\mathbf{x}} - \mathbf{L}(\mathbf{C}\mathbf{x} - \mathbf{C}\hat{\mathbf{x}}). \end{equation}
+$$
+
+Using the definitions of the error, $\mathbf{e} = \mathbf{x} - \hat{\mathbf{x}}$, and the measured output, $\mathbf{y} = \mathbf{C}\mathbf{x}$, I rewrite the equation as 
+
+$$\begin{equation} \dot{\mathbf{e}} = \mathbf{A}(\mathbf{x} - \hat{\mathbf{x}}) - \mathbf{L}\mathbf{C}(\mathbf{x} - \hat{\mathbf{x}}). \end{equation}
+$$
+
+Factoring out $\mathbf{e}$, I express the error dynamics as 
+
+$$\begin{equation} \dot{\mathbf{e}} = (\mathbf{A} - \mathbf{L}\mathbf{C})\mathbf{e}. \end{equation}
+$$
+
 This equation represents the observer error dynamics. The matrix $\mathbf{A} - \mathbf{L}\mathbf{C}$ governs the stability of the error. To ensure the error converges to zero over time, I design $\mathbf{L}$ such that all eigenvalues of $\mathbf{A} - \mathbf{L}\mathbf{C}$ have strictly negative real parts.
 
-\subsection{Solving for the Observer Gains}
-I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly.
-I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s \texttt{place} function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
+### {Solving for the Observer Gains
+I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s \texttt{place} function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
 
 Figure~\ref{fig:observer_performance} displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{observer_performance.png}
-    \caption{Observer Performance: Estimation Error and Roll Angle Tracking}
-    \label{fig:observer_performance}
-\end{figure}
 
-\section{Conclusion}
+### Figure: Observer Performance
+
+![Observer Performance: Estimation Error and Roll Angle Tracking](Media/observer_performance.png)
+
+**Figure:** Observer Performance showing Estimation Error and Roll Angle Tracking.
+
+## Conclusion
 In this project, I designed and simulated a full-state feedback control system for hover stabilization of a quadcopter drone, applying principles from ENME605 Advanced Systems Control. I derived the plant dynamics by taking the steps of defining the quadcopter's physical parameters, degrees of freedom, state variables, and control inputs;  deriving the quadcopter's nonlinear equations of motion; linearizing the equations of motion about the hover state (which involved casting the equations of motion into a state-space form and applying the linear approximation at the hover state); and verifying the controllability of the quadcopter. I proceeded to design the controller by deriving the closed-loop feedback control dynamics, solving for suitable control gains using the LQR optimal control framework, and improving upon the preliminary result through gain tuning. Finally, I designed an observer step-by-step first by verifying observability, then by deriving the observer's error dynamics and solving for the observer gains using the method of pole placement. The final result is a hover stabilization controller capable of returning a simulation drone to the hover state from perturbed states. 
