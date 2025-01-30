@@ -126,6 +126,14 @@ $$
 \end{equation}
 $$
 
+\[
+\dot{\mathbf{x}} =
+\left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{x} +
+\left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{u} =
+\mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
+\]
+
+
 Furthermore, the resulting state-space model is linear time-invariant, therefore well suited for LQR controller design. The system's $\mathbf{A}$ and $\mathbf{B}$ are the following.
 
 $$
