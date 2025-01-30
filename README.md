@@ -262,8 +262,8 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 **Figure:** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I₁₂ₓ₁₂** and **R** = **I₄ₓ₄**
 
 
-## Improving Controller Performance
-I improve the controller performance by examining the settling time required for all quadcopter states to return to equilibrium following a small initial perturbation from hover. To achieve this, I adjust the weighting matrices in the LQR cost function, changing the balance between penalizing state deviation and penalizing control effort.
+## Verifying Expected Results
+I verify expected results by examining the settling time required for all quadcopter states to return to equilibrium following a small initial perturbation from hover. To achieve this, I adjust the weighting matrices in the LQR cost function, changing the balance between penalizing state deviation and penalizing control effort.
 
 Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to all control inputs. Under these conditions, and with an initial perturbation of $-0.025$ applied to all states, I simulate the closed-loop system and measure a settling time of approximately 1.91 seconds. To achieve faster stabilization, I reduce the penalty on control effort by choosing $\mathbf{R} = 0.1\mathbf{I}$, allowing the controller to respond more aggressively to deviations.
 
@@ -284,6 +284,13 @@ With this adjustment, the system settles more quickly, requiring approximately 1
 
 For this project, I select the more aggressive controller for its reduced settling time. However, I acknowledge that in practice, factors such as actuator saturation, component constraints, and energy usage must be carefully considered to ensure the chosen parameters are appropriate for the physical system.
 
+## Evaluating Controller Performance
+I evaluate controller performance. I evaluate overshoot distribution, settling time distribution, and thrust overhead distribution.  
+
+### Figure: Control Inputs and Closed-Loop Eigenvalues for Different Configurations
+
+#### Control Inputs for Balanced and More Aggressive Configurations
+![Evaluation Metrics for LQR Controller](Media/monte_carlo_results.png)
 
 ## Designing the Observer 
 I design a state estimator for the quadcopter system. The observer reconstructs the full state vector from available output measurements, even when some states are not directly measurable. To achieve this, I derive the observer error dynamics, verify the system’s observability, solve for the observer gains, and verify the expected behavior of the observer.
@@ -327,6 +334,7 @@ $$\begin{equation} \dot{\mathbf{e}} = \mathbf{A}\mathbf{x} + \mathbf{B}\mathbf{u
 $$
 
 Simplifying and grouping terms, I find 
+
 $$
 \begin{equation} \dot{\mathbf{e}} = \mathbf{A}\mathbf{x} - \mathbf{A}\hat{\mathbf{x}} - \mathbf{L}(\mathbf{C}\mathbf{x} - \mathbf{C}\hat{\mathbf{x}}). \end{equation}
 $$
@@ -343,7 +351,7 @@ $$
 
 This equation represents the observer error dynamics. The matrix $\mathbf{A} - \mathbf{L}\mathbf{C}$ governs the stability of the error. To ensure the error converges to zero over time, I design $\mathbf{L}$ such that all eigenvalues of $\mathbf{A} - \mathbf{L}\mathbf{C}$ have strictly negative real parts.
 
-### {Solving for the Observer Gains
+### Solving for the Observer Gains
 I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s \texttt{place} function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
 
 Figure~\ref{fig:observer_performance} displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
@@ -353,6 +361,7 @@ Figure~\ref{fig:observer_performance} displays the observer’s performance, sho
 ![Observer Performance: Estimation Error and Roll Angle Tracking](Media/observer_performance.png)
 
 **Figure:** Observer Performance showing Estimation Error and Roll Angle Tracking.
+
 
 ## Conclusion
 In this project, I designed and simulated a full-state feedback control system for hover stabilization of a quadcopter drone, applying principles from ENME605 Advanced Systems Control. I derived the plant dynamics by taking the steps of defining the quadcopter's physical parameters, degrees of freedom, state variables, and control inputs;  deriving the quadcopter's nonlinear equations of motion; linearizing the equations of motion about the hover state (which involved casting the equations of motion into a state-space form and applying the linear approximation at the hover state); and verifying the controllability of the quadcopter. I proceeded to design the controller by deriving the closed-loop feedback control dynamics, solving for suitable control gains using the LQR optimal control framework, and improving upon the preliminary result through gain tuning. Finally, I designed an observer step-by-step first by verifying observability, then by deriving the observer's error dynamics and solving for the observer gains using the method of pole placement. The final result is a hover stabilization controller capable of returning a simulation drone to the hover state from perturbed states. 
