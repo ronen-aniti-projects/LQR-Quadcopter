@@ -2,7 +2,7 @@
 
 ## Overview
 
-I apply principles taught in ENME605 Advanced Systems Control to design and simulate a full-state feedback control system for hover control of a quadcopter drone. I begin by deriving a state-space model, linearizing the equations of motion about the hover state, and verifying controllability. Using the Linear Quadratic Regulator (LQR) optimal control framework, I design the quadcopter's hover controller and improve upon it by refining the LQR weighting matrices. I then confirm observability and design an observer via pole placement to reconstruct unmeasured states. My focus with this project is on applying state-space modeling, LQR, and state estimation techniques. Finally, I evaluate the performance of the controller with Monte Carlo trials, determining a 3.5s 95th %tile settling time with 2cm/2deg under +- 25% pertubations with <11% thrust overhead. 
+I apply principles taught in ENME605 Advanced Systems Control to design and simulate a full-state feedback control system for hover control of a quadcopter drone. I begin by deriving a state-space model, linearizing the equations of motion about the hover state, and verifying controllability. Using the Linear Quadratic Regulator (LQR) optimal control framework, I design the quadcopter's hover controller and improve upon it by refining the LQR weighting matrices. I then confirm observability and design an observer via pole placement to reconstruct unmeasured states. My focus with this project is on applying state-space modeling, LQR, and state estimation techniques. 
 
 ## Deriving the Plant Dynamics
 I derive the state-space model for the quadcopter drone. I define the physical parameters of the drone, I define the quadcopter's degrees of freedom, I define a suitable state vector, I define the quadcopter's control inputs, I derive the equations of motion, I linearize the equations of motion about the hover condition, and I cast the linearized equations of motion into a state-space form suitable for linear control design. 
@@ -119,19 +119,12 @@ I apply the notion of first-order Taylor series linear approximation to lineariz
 
 $$
 \begin{equation}
-\dot{\mathbf{x}} =
-\left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{x} +
-\left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{u} =
-\mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
+    \dot{\mathbf{x}} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{x} + 
+                       \left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{u} = 
+                       \mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
 \end{equation}
 $$
 
-\[
-\dot{\mathbf{x}} =
-\left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{x} +
-\left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{u} =
-\mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
-\]
 
 
 Furthermore, the resulting state-space model is linear time-invariant, therefore well suited for LQR controller design. The system's $\mathbf{A}$ and $\mathbf{B}$ are the following.
@@ -292,13 +285,6 @@ With this adjustment, the system settles more quickly, requiring approximately 1
 
 For this project, I select the more aggressive controller for its reduced settling time. However, I acknowledge that in practice, factors such as actuator saturation, component constraints, and energy usage must be carefully considered to ensure the chosen parameters are appropriate for the physical system.
 
-## Evaluating Controller Performance
-I evaluate controller performance. I evaluate overshoot distribution, settling time distribution, and thrust overhead distribution.  
-
-### Figure: Control Inputs and Closed-Loop Eigenvalues for Different Configurations
-
-#### Control Inputs for Balanced and More Aggressive Configurations
-![Evaluation Metrics for LQR Controller](Media/monte_carlo_results.png)
 
 ## Designing the Observer 
 I design a state estimator for the quadcopter system. The observer reconstructs the full state vector from available output measurements, even when some states are not directly measurable. To achieve this, I derive the observer error dynamics, verify the system’s observability, solve for the observer gains, and verify the expected behavior of the observer.
@@ -373,3 +359,9 @@ Figure~\ref{fig:observer_performance} displays the observer’s performance, sho
 
 ## Conclusion
 In this project, I designed and simulated a full-state feedback control system for hover stabilization of a quadcopter drone, applying principles from ENME605 Advanced Systems Control. I derived the plant dynamics by taking the steps of defining the quadcopter's physical parameters, degrees of freedom, state variables, and control inputs;  deriving the quadcopter's nonlinear equations of motion; linearizing the equations of motion about the hover state (which involved casting the equations of motion into a state-space form and applying the linear approximation at the hover state); and verifying the controllability of the quadcopter. I proceeded to design the controller by deriving the closed-loop feedback control dynamics, solving for suitable control gains using the LQR optimal control framework, and improving upon the preliminary result through gain tuning. Finally, I designed an observer step-by-step first by verifying observability, then by deriving the observer's error dynamics and solving for the observer gains using the method of pole placement. The final result is a hover stabilization controller capable of returning a simulation drone to the hover state from perturbed states. 
+
+
+## Follow Up: Evaluating Controller Performance
+I develop a mathematical framework based on simulating Monte Carlo Trials for assessing controller performance. The framework involves ... For example, I record 3.5s 95th %tile settling time with 2cm/2deg under +/- 25% pertubations with <11% thrust overhead for a dynamics model having these properties and a controller having these properties. 
+### Figure: 
+![Evaluation Metrics for LQR Controller](Media/monte_carlo_results.png)

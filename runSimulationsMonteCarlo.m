@@ -40,7 +40,7 @@ hoverThrust = mValue * gValue;
 perturbationMagnitude = 0.25;  % +/- 25% from equilibrium
 
 for trial = 1:numTrials
-    % 1. Initial perturbation (-25% to +25% of max expected values)
+    % 1. Inituial pertubation )
     xPert = perturbationMagnitude * (2*rand(12,1) - 1);
     
     % 2. Simulate dynamics
@@ -56,11 +56,11 @@ for trial = 1:numTrials
         x(:,ii+1) = x(:,ii) + dt * xDot;
     end
     
-    % 3. Compute metrics ------------------------------------------------
+    % 3. Compute metrics 
     % Overshoot: Max absolute deviation from equilibrium (0)
     overshootResults(trial) = max(abs(x(1:3)));
     
-    % Settling time: First time ALL states within tolerances
+    % Settling time: First time all states within tolerances
     settled = false(1, length(t));
     for jj = 1:length(t)
         settled(jj) = all(abs(x(:,jj)) <= tolerances);
@@ -72,12 +72,12 @@ for trial = 1:numTrials
         settlingTimeResults(trial) = t(end); % Mark as never settled
     end
     
-    % Thrust overhead
+    % Thrust overhead <- What percent over hover thrust (mg) is the max thrust?
     thrustOverheadResults(trial) = (max(u(1,:))/hoverThrust - 1) * 100;
 end
 
-% Resume-Ready Metrics
-fprintf('\n=== Control Performance Summary ===\n');
+% Extract the key performance metrics and print them to the console
+fprintf('Control Performance Summary');
 fprintf('Trials: %d | Perturbation: ±%.0f%%\n', numTrials, perturbationMagnitude*100);
 fprintf('Settling Criteria: %.2fm, %.1f°, %.2fm/s, %.1f°/s\n',...
     positionTol, rad2deg(angleTol), velocityTol, rad2deg(rateTol));
@@ -85,7 +85,7 @@ fprintf('Overshoot (95th %%ile): %.3f units\n', prctile(overshootResults, 95));
 fprintf('Settling Time (95th %%ile): %.1fs\n', prctile(settlingTimeResults, 95));
 fprintf('Max Thrust Overhead: %.1f%%\n\n', max(thrustOverheadResults));
 
-% Plotting (Original Style)
+% Plotting the results of the Monte Carlo simulations
 figure('Position', [100 100 1200 400]);
 
 subplot(1,3,1);
