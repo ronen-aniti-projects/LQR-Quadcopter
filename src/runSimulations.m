@@ -1,140 +1,11 @@
-function stateDerivative = evaluateDynamics(parameterValues, stateValues, inputValues)
-    
-    % The params
-    m = parameterValues(1);
-    g = parameterValues(2); 
-    Ix = parameterValues(3); 
-    Iy = parameterValues(4);
-    Iz = parameterValues(5);
-    
-    % The states
-    x = stateValues(1);
-    y = stateValues(2);
-    z = stateValues(3);
-    phi = stateValues(4);
-    theta = stateValues(5);
-    psi = stateValues(6);  
-    xd = stateValues(7);
-    yd = stateValues(8);
-    zd = stateValues(9);
-    p = stateValues(10);
-    q = stateValues(11);
-    r = stateValues(12);
-    
-    % The inputs
-    Fc = inputValues(1);
-    Mx = inputValues(2);
-    My = inputValues(3);
-    Mz = inputValues(4);
+clear; clc; close all;
 
-    % Evaluate the state derivative based on the nonlinear EOMs
-    stateDerivative = zeros(12,1);
-    stateDerivative(1) = xd;
-    stateDerivative(2) = yd;
-    stateDerivative(3) = zd;
-    stateDerivative(4) = p + r*cos(phi)*tan(theta) + q*sin(phi)*tan(theta);
-    stateDerivative(5) =  q*cos(phi) - r*sin(phi);
-    stateDerivative(6) = (r*cos(phi))/cos(theta) + (q*sin(phi))/cos(theta);
-    stateDerivative(7) =  (Fc*(sin(phi)*sin(psi) + cos(phi)*cos(psi)*sin(theta)))/m;
-    stateDerivative(8) = -(Fc*(cos(psi)*sin(phi) - cos(phi)*sin(psi)*sin(theta)))/m;
-    stateDerivative(9) =  (Fc*cos(phi)*cos(theta))/m - g; 
-    stateDerivative(10) = Mx/Ix + q*r*(Iy - Iz)/Ix;
-    stateDerivative(11) = My/Iy - p*r*(Ix - Iz)/Iy;
-    stateDerivative(12) = Mz/Iz + p*q*(Ix - Iy)/Iz;
+% Load the linear model
+load('QuadcopterModel.mat','AHoverEvaluated','BHoverEvaluated',...
+     'measurementMatrix', 'mValue','gValue','IxValue','IyValue','IzValue');
 
-end
-
-
-
-% Symbolic Dynamics Module
-syms m g Ix Iy Iz
-syms Fc Mx My Mz
-syms x xd xdd 
-syms y yd ydd
-syms z zd zdd
-syms phi phid
-syms theta thetad
-syms psi psid
-syms p pd
-syms q qd
-syms r rd 
-
-% Rotation matrices for ZYX Euler sequence (body to world frame)
-Rx = [1 0 0; 0 cos(phi) -sin(phi); 0 sin(phi) cos(phi)];
-Ry = [cos(theta) 0 sin(theta); 0 1 0; -sin(theta) 0 cos(theta)];
-Rz = [cos(psi) -sin(psi) 0; sin(psi) cos(psi) 0; 0 0 1];
-R = Rz * Ry * Rx; % Overall rotation matrix
-
-% Angular accelerations (body frame)
-pdRHS = Mx/Ix - (Iz-Iy)*r*q/Ix;
-qdRHS = My/Iy - (Ix-Iz)*p*r/Iy;
-rdRHS = Mz/Iz - (Iy-Ix)*q*p/Iz;
-
-% Linear accelerations (world frame)
-linearAccelerations = 1/m * R * [0;0;Fc] - [0;0;g];
-xddRHS = linearAccelerations(1);
-yddRHS = linearAccelerations(2);
-zddRHS = linearAccelerations(3);
-
-% Transform body rates to Euler rates
-T = [1, sin(phi)*tan(theta), cos(phi)*tan(theta);
-    0, cos(phi), -sin(phi);
-    0, sin(phi)*sec(theta), cos(phi)*sec(theta)];
-eulerRates = T * [p;q;r];
-phidRHS = eulerRates(1);
-thetadRHS = eulerRates(2);
-psidRHS = eulerRates(3);
-
-stateSymbolic = [x; y; z; phi; theta; psi; xd; yd; zd; p; q; r];
-inputSymbolic = [Fc; Mx; My; Mz];
-stateDerivativeSymbolic = [xd; yd; zd; phidRHS; thetadRHS; psidRHS; xddRHS; yddRHS; zddRHS; pdRHS; qdRHS; rdRHS];
-
-% Linearization
-A = jacobian(stateDerivativeSymbolic, stateSymbolic);
-B = jacobian(stateDerivativeSymbolic, inputSymbolic);
-
-% Apply the hover condition
-hoverEquilibrium = [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];
-hoverInputs = [m * g; 0; 0; 0];
-
-% Linearized A and B evaluated at hover
-AHover = simplify(subs(A, [stateSymbolic; inputSymbolic], [hoverEquilibrium; hoverInputs]));
-BHover = simplify(subs(B, [stateSymbolic; inputSymbolic], [hoverEquilibrium; hoverInputs]));
-
-% Parameter set
-mValue = 0.5;
-gValue = 9.81;
-IxValue = 0.02;
-IyValue = 0.02;
-IzValue = 0.04;
-
-
-% Evaluate the state space matrices 
-AHoverEvaluated = double(subs(AHover, {m, g}, {mValue, gValue}));
-BHoverEvaluated = double(subs(BHover, {m, Ix, Iy, Iz}, {mValue, IxValue, IyValue, IzValue}));
-
-% Assume full state feedback for this scenario
-measurementMatrix = eye(12);
-
-% Validate controllability
-controllabilityTestMatrix = ctrb(AHoverEvaluated, BHoverEvaluated);
-if rank(controllabilityTestMatrix) == length(AHoverEvaluated)
-    disp('The quadcopter is controllable')
-else
-    disp('The quadcopter is not controllable')
-end
-
-% Validate observability
-observabilityTestMatrix = obsv(AHoverEvaluated, measurementMatrix);
-if rank(observabilityTestMatrix) == length(AHoverEvaluated)
-     disp('The quadcopter is observable')
-else
-    disp('The quadcopter is not observable')
-end  
-
-
+% Prepare the parameterValues array for evaluateDynamics
 parameterValues = [mValue, gValue, IxValue, IyValue, IzValue];
-
 
 % ==============================================================================
 % ===== SIMULATION 1: EFFECTS OF VARYING LQR GAINS (4 PARAMETER SETS) ==========
@@ -423,3 +294,4 @@ colormap([0.2 0.6 0.8; 0.8 0.4 0.2]); % Example color scheme
 
 % Save the figure
 saveas(gcf, 'control_efforts_comparison.png'); % Save as PNG
+
