@@ -246,7 +246,6 @@ $$
 I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure~\ref{fig:enter-label} illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
 
-### Figure: Real-Imaginary Plot of the Closed-Loop Eigenvalues
 
 ![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
 
@@ -255,8 +254,6 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 
 I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure~\ref{fig:enter-label} illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
-
-### Figure: Real-Imaginary Plot of the Closed-Loop Eigenvalues
 
 ![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
 
@@ -270,14 +267,10 @@ Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to al
 
 With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure 2 compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, 3 compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
 
-### Figure: Control Inputs and Closed-Loop Eigenvalues for Different Configurations
-
-#### Control Inputs for Balanced and More Aggressive Configurations
 ![Control Inputs for Balanced and More Aggressive Configurations](docs/control_efforts_comparison.png)
 
 **Figure 2.** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
 
-#### Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers
 ![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](docs/closed_loop_variants.png)
 
 **Figure 3.** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
@@ -348,42 +341,14 @@ This equation represents the observer error dynamics. The matrix $\mathbf{A} - \
 ### Solving for the Observer Gains
 I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s \texttt{place} function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
 
-Figure~\ref{fig:observer_performance} displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
+Figure 4 displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
 
-### Figure: Observer Performance
+
 
 ![Observer Performance: Estimation Error and Roll Angle Tracking](docs/observer_performance.png)
 
-**Figure:** Observer Performance showing Estimation Error and Roll Angle Tracking.
+**Figure 4.** Observer Performance showing Estimation Error and Roll Angle Tracking.
 
 
 ## Conclusion
 In this project, I designed and simulated a full-state feedback control system for hover stabilization of a quadcopter drone, applying principles from ENME605 Advanced Systems Control. I derived the plant dynamics by taking the steps of defining the quadcopter's physical parameters, degrees of freedom, state variables, and control inputs;  deriving the quadcopter's nonlinear equations of motion; linearizing the equations of motion about the hover state (which involved casting the equations of motion into a state-space form and applying the linear approximation at the hover state); and verifying the controllability of the quadcopter. I proceeded to design the controller by deriving the closed-loop feedback control dynamics, solving for suitable control gains using the LQR optimal control framework, and improving upon the preliminary result through gain tuning. Finally, I designed an observer step-by-step first by verifying observability, then by deriving the observer's error dynamics and solving for the observer gains using the method of pole placement. The final result is a hover stabilization controller capable of returning a simulation drone to the hover state from perturbed states. 
-
-
-## Follow Up: Evaluating Controller Performance
-
-Number of trials = 100
-State pertubation vector = []
-Control parameters K = []
-hover thrust = mg
-time step = 0.01 sec
-trial simulation time: 20 sec
-tolerance vector [dx dy .... dr]
-
-Algorithm: 
-
-For each trial: 
-    For 20 secs:
-    1. generate a random pertubation
-    2. compute the control actuation: hover thrust - ku
-    3. advance the state forward by dt seconds
-
-    Once computed, 
-    1. Compute maximum deviation from equilibrium (x, y, z) (0, 0, 0)
-    2. Compute settling time: first time all states are within the tolerance bounds
-    3. Compute thrust overhead (what percent of hover thrust is the collective control thrust?)
-
-I develop a mathematical framework based on simulating Monte Carlo Trials for assessing controller performance. The framework involves ... For example, I record 3.5s 95th %tile settling time with 2cm/2deg under +/- 25% pertubations with <11% thrust overhead for a dynamics model having these properties and a controller having these properties. 
-### Figure: 
-![Evaluation Metrics for LQR Controller](docs/monte_carlo_results.png)
