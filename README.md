@@ -268,19 +268,19 @@ I verify expected results by examining the settling time required for all quadco
 
 Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to all control inputs. Under these conditions, and with an initial perturbation of $-0.025$ applied to all states, I simulate the closed-loop system and measure a settling time of approximately 1.91 seconds. To achieve faster stabilization, I reduce the penalty on control effort by choosing $\mathbf{R} = 0.1\mathbf{I}$, allowing the controller to respond more aggressively to deviations.
 
-With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure~\ref{fig:control_efforts} compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, Figure~\ref{fig:closed_loop_variants} compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
+With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure 2 compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, 3 compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
 
 ### Figure: Control Inputs and Closed-Loop Eigenvalues for Different Configurations
 
 #### Control Inputs for Balanced and More Aggressive Configurations
 ![Control Inputs for Balanced and More Aggressive Configurations](docs/control_efforts_comparison.png)
 
-**Figure:** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
+**Figure 2.** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
 
 #### Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers
 ![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](docs/closed_loop_variants.png)
 
-**Figure:** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
+**Figure 3.** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
 
 
 For this project, I select the more aggressive controller for its reduced settling time. However, I acknowledge that in practice, factors such as actuator saturation, component constraints, and energy usage must be carefully considered to ensure the chosen parameters are appropriate for the physical system.
@@ -362,6 +362,28 @@ In this project, I designed and simulated a full-state feedback control system f
 
 
 ## Follow Up: Evaluating Controller Performance
+
+Number of trials = 100
+State pertubation vector = []
+Control parameters K = []
+hover thrust = mg
+time step = 0.01 sec
+trial simulation time: 20 sec
+tolerance vector [dx dy .... dr]
+
+Algorithm: 
+
+For each trial: 
+    For 20 secs:
+    1. generate a random pertubation
+    2. compute the control actuation: hover thrust - ku
+    3. advance the state forward by dt seconds
+
+    Once computed, 
+    1. Compute maximum deviation from equilibrium (x, y, z) (0, 0, 0)
+    2. Compute settling time: first time all states are within the tolerance bounds
+    3. Compute thrust overhead (what percent of hover thrust is the collective control thrust?)
+
 I develop a mathematical framework based on simulating Monte Carlo Trials for assessing controller performance. The framework involves ... For example, I record 3.5s 95th %tile settling time with 2cm/2deg under +/- 25% pertubations with <11% thrust overhead for a dynamics model having these properties and a controller having these properties. 
 ### Figure: 
 ![Evaluation Metrics for LQR Controller](docs/monte_carlo_results.png)
