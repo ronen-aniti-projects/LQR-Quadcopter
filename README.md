@@ -248,7 +248,7 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 
 ### Figure: Real-Imaginary Plot of the Closed-Loop Eigenvalues
 
-![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](Media/closed_loop_eigenvalues.png)
+![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
 
 **Figure:** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I**₁₂ₓ₁₂ and **R** = **I**₄ₓ₄
 
@@ -258,7 +258,7 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 
 ### Figure: Real-Imaginary Plot of the Closed-Loop Eigenvalues
 
-![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](Media/closed_loop_eigenvalues.png)
+![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
 
 **Figure:** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I₁₂ₓ₁₂** and **R** = **I₄ₓ₄**
 
@@ -273,12 +273,12 @@ With this adjustment, the system settles more quickly, requiring approximately 1
 ### Figure: Control Inputs and Closed-Loop Eigenvalues for Different Configurations
 
 #### Control Inputs for Balanced and More Aggressive Configurations
-![Control Inputs for Balanced and More Aggressive Configurations](Media/control_efforts_comparison.png)
+![Control Inputs for Balanced and More Aggressive Configurations](docs/control_efforts_comparison.png)
 
 **Figure:** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
 
 #### Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers
-![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](Media/closed_loop_variants.png)
+![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](docs/closed_loop_variants.png)
 
 **Figure:** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
 
@@ -352,7 +352,7 @@ Figure~\ref{fig:observer_performance} displays the observer’s performance, sho
 
 ### Figure: Observer Performance
 
-![Observer Performance: Estimation Error and Roll Angle Tracking](Media/observer_performance.png)
+![Observer Performance: Estimation Error and Roll Angle Tracking](docs/observer_performance.png)
 
 **Figure:** Observer Performance showing Estimation Error and Roll Angle Tracking.
 
@@ -364,4 +364,4 @@ In this project, I designed and simulated a full-state feedback control system f
 ## Follow Up: Evaluating Controller Performance
 I develop a mathematical framework based on simulating Monte Carlo Trials for assessing controller performance. The framework involves ... For example, I record 3.5s 95th %tile settling time with 2cm/2deg under +/- 25% pertubations with <11% thrust overhead for a dynamics model having these properties and a controller having these properties. 
 ### Figure: 
-![Evaluation Metrics for LQR Controller](Media/monte_carlo_results.png)
+![Evaluation Metrics for LQR Controller](docs/monte_carlo_results.png)

@@ -299,13 +299,13 @@ saveas(gcf, 'control_efforts_comparison.png'); % Save as PNG
 % ===== SIMULATION 2: Performance Evaluation of Controller 4 ==========
 % ==============================================================================
 
-% Monte Carlo Simulation with Improved Metrics
+% Monte Carlo Simulation with Metrics
 numTrials = 100;
 overshootResults = zeros(numTrials, 1);
 settlingTimeResults = zeros(numTrials, 1);
 thrustOverheadResults = zeros(numTrials, 1);
 
-% Absolute tolerances [m, rad, m/s, rad/s] (modify as needed)
+% Absolute tolerances [m, rad, m/s, rad/s] 
 positionTol = 0.02;    % 2 cm
 angleTol = 0.0349;     % 2 degrees
 velocityTol = 0.1;     % 10 cm/s
@@ -321,7 +321,7 @@ tolerances = [positionTol*ones(3,1);
 % Controller parameters
 aggressiveK = KData{4};
 hoverThrust = mValue * gValue;
-perturbationMagnitude = 0.25;  % +/- 25% from equilibrium
+perturbationMagnitude = 0.25;  
 
 for trial = 1:numTrials
     % 1. Initial perturbation (-25% to +25% of max expected values)
@@ -360,7 +360,7 @@ for trial = 1:numTrials
     thrustOverheadResults(trial) = (max(u(1,:))/hoverThrust - 1) * 100;
 end
 
-% Resume-Ready Metrics
+% Show Metrics from the Simulation
 fprintf('\n=== Control Performance Summary ===\n');
 fprintf('Trials: %d | Perturbation: ±%.0f%%\n', numTrials, perturbationMagnitude*100);
 fprintf('Settling Criteria: %.2fm, %.1f°, %.2fm/s, %.1f°/s\n',...
@@ -369,7 +369,7 @@ fprintf('Overshoot (95th %%ile): %.3f units\n', prctile(overshootResults, 95));
 fprintf('Settling Time (95th %%ile): %.1fs\n', prctile(settlingTimeResults, 95));
 fprintf('Max Thrust Overhead: %.1f%%\n\n', max(thrustOverheadResults));
 
-% Plotting (Original Style)
+% Plotting 
 figure('Position', [100 100 1200 400]);
 
 subplot(1,3,1);

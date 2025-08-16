@@ -295,6 +295,5 @@ colormap([0.2 0.6 0.8; 0.8 0.4 0.2]); % Example color scheme
 % Save the figure
 saveas(gcf, 'control_efforts_comparison.png'); % Save as PNG
 
-
 % Save results to .mat for easy loading in other scripts
 save('LQRGains.mat','KData');

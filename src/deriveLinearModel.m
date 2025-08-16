@@ -84,8 +84,6 @@ else
     disp('The quadcopter is not observable')
 end  
 
-
-
 % Save results to .mat for easy loading in other scripts
 save('QuadcopterModel.mat','AHoverEvaluated','BHoverEvaluated', 'measurementMatrix', ...
      'mValue','gValue','IxValue','IyValue','IzValue');
