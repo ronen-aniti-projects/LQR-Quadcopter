@@ -1,12 +1,3 @@
-clear; clc; close all;
-
-% Load the linear model
-load('QuadcopterModel.mat','AHoverEvaluated','BHoverEvaluated',...
-     'measurementMatrix', 'mValue','gValue','IxValue','IyValue','IzValue');
-
-% Prepare the parameterValues array for evaluateDynamics
-parameterValues = [mValue, gValue, IxValue, IyValue, IzValue];
-
 % ==============================================================================
 % ===== SIMULATION 1: EFFECTS OF VARYING LQR GAINS (4 PARAMETER SETS) ==========
 % ==============================================================================
@@ -294,4 +285,3 @@ colormap([0.2 0.6 0.8; 0.8 0.4 0.2]); % Example color scheme
 
 % Save the figure
 saveas(gcf, 'control_efforts_comparison.png'); % Save as PNG
-

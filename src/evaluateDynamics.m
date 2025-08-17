@@ -1,5 +1,14 @@
+% Function: stateDerivative
+% Brief: Evaluates the nonlinear state space model for the quadcopter
+% dynamics
+% Inputs: 
+%   - parameterValues: The vector of physical constants: [m, g, Ix, Iy, Iz]
+%   - inputValues: The state vector [x, y, z, phi, theta, psi, xd. yd, zd, p, q, r]
+% Outputs:
+%   - stateDerivative: The state derivative vector 
+%               [xd, yd, zd, phi_d,theta_d, psi_d, xdd, ydd, zdd, pd, qd, rd]
+% 
 function stateDerivative = evaluateDynamics(parameterValues, stateValues, inputValues)
-    
     % The params
     m = parameterValues(1);
     g = parameterValues(2); 
@@ -43,3 +52,4 @@ function stateDerivative = evaluateDynamics(parameterValues, stateValues, inputV
     stateDerivative(12) = Mz/Iz + p*q*(Ix - Iy)/Iz;
 
 end
+
