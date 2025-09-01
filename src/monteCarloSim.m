@@ -25,12 +25,12 @@ rng(42);
 
 % Define the bounds of the initial condition windows on each state
 initWindows = [ ...
+    -1.0 1.0; % x
+    -1.0 1.0; % y
+    -1.0 1.0; % z
     -1.0 1.0;
     -1.0 1.0;
     -1.0 1.0;
-    0.0 0.0;
-    0.0 0.0;
-    0.0 0.0;
     0.0 0.0;
     0.0 0.0;
     0.0 0.0;
@@ -78,7 +78,7 @@ didSettle = zeros(numTrials,1);
 thrustOverhead = zeros(numTrials,1);
 
 % Define storage for each trial's percent overshoot
-overshootPercent = zeros(numTrials,1);
+overshoot = zeros(numTrials,1);
 
 % Iterate trials
 for trial = 1:numTrials
@@ -171,15 +171,20 @@ for trial = 1:numTrials
     % maximum trial thrust and the hover thrust. 
     thrustOverhead(trial) = 100 * (maxThrustCommand - Fc_hover) / Fc_hover;
 
-    % Compute overshoot: Find the overshoot percent of each state over its
-    % initial condition, then take the largest from all 12. Record that as
-    % overshoot percentage.
+    % Compute overshoot: I edited this portion recently. I redefine
+    % overshoot as simply an absolute value of the maximum deflection on
+    % only positional states. (Not across all states anymore).
     overshootEachState = zeros(12,1);
-    for stateIndex = 1:12
+    for stateIndex = 1:3 % Changed to only measure states 1 to 3
         initialMagnitude = abs(initialState(stateIndex));
-        overshootEachState(stateIndex) = 100 * maxOppositeDeflection(stateIndex) / initialMagnitude;
+        if initialMagnitude > 0
+            overshootEachState(stateIndex) = maxOppositeDeflection(stateIndex);
+        else
+            % Prevent division by zero
+            overshootEachState(stateIndex) = 0;
+        end
     end
-    overshootPercent(trial) = max(overshootEachState);
+    overshoot(trial) = max(overshootEachState);
 
 end
 
@@ -193,7 +198,7 @@ medianSettle = median(settleTimes(settledIndices));
 meanSettle = mean(settleTimes(settledIndices));
 
 % Configure histogram bins (30 bins)
-edgesST = linspace(0, Tfinal, 31);
+edgesSettleTime = linspace(0, Tfinal, 31);
 
 % Plot the results
 figure;
@@ -201,7 +206,7 @@ figure;
 sgtitle('Monte Carlo Evaluation of Quadcopter LQR Hover Controller');
 
 subplot(1,3,1);
-histogram(settleTimes(settledIndices), edgesST, 'FaceColor', [0.2 0.6 0.9]);
+histogram(settleTimes(settledIndices), edgesSettleTime, 'FaceColor', [0.2 0.6 0.9]);
 title('Settling Time');
 xlabel('Time [s]'); ylabel('Count'); grid on; box on;
 
@@ -211,11 +216,41 @@ title('Thrust Overhead (%)');
 xlabel('Overhead [%]'); ylabel('Count'); grid on; box on;
 
 subplot(1,3,3);
-histogram(overshootPercent, 30, 'FaceColor', [0.9 0.3 0.3]); 
-title('Overshoot (%)');
-xlabel('Overshoot [%]'); ylabel('Count'); grid on; box on;
+histogram(overshoot, 30, 'FaceColor', [0.9 0.3 0.3]); 
+title('Overshoot (m)');
+xlabel('Overshoot [m]'); ylabel('Count'); grid on; box on;
 
 % Show simulation statistics (mean settling, median settling, % settled)
 fprintf('Settled: %d / %d (%.1f%%)\n', sum(didSettle), numTrials, 100 * sum(didSettle) / numTrials);
 fprintf('Median Settling Time: %.3f s\n', medianSettle);
 fprintf('Mean Settling Time: %.3f s\n', meanSettle);
+
+%% calculate important stats
+
+% Extract indices of settled trials
+settledIndices = find(didSettle==1);
+
+% Compute the percent of trials that settle
+pctSettled = 100 * numel(settledIndices) / numTrials;
+
+% Settling Time Statistics
+STMean = mean(settleTimes(settledIndices));
+STMedian = median(settleTimes(settledIndices));
+STP95 = prctile(settleTimes(settledIndices), 95);
+
+% Thrust Overhead Statistics
+thrustOverheadMean= mean(thrustOverhead);
+thrustOverheadMedian = median(thrustOverhead);
+thrustOverheadP95 = prctile(thrustOverhead, 95);
+
+% Overshoot Statistics
+overshootMean = mean(overshoot);
+overshootMedian = median(overshoot);
+overshootP95 = prctile(overshoot, 95);
+
+% Print Results
+fprintf('\n--- Monte Carlo Simulation Results Summary ---\n');
+fprintf('Settled: %d / %d (%.1f%%)\n', numel(settledIndices), numTrials, pctSettled);
+fprintf('Settling Time [s]: mean=%.3f  median=%.3f  p95=%.3f\n', STMean, STMedian, STP95);
+fprintf('Thrust Overhead [%%]: mean=%.2f  median=%.2f  p95=%.2f\n', thrustOverheadMean, thrustOverheadMedian, thrustOverheadP95);
+fprintf('Overshoot [m]: mean=%.3f  median=%.3f  p95=%.3f\n', overshootMean, overshootMedian, overshootP95);
