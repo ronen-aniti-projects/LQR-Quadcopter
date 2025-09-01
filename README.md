@@ -238,7 +238,7 @@ $$
 \end{equation}
 $$
 
-I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure 1 illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
+I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. **Figure 1** illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
 
 
@@ -247,7 +247,7 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 **Figure 1.** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I**₁₂ₓ₁₂ and **R** = **I**₄ₓ₄
 
 
-I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure 2 illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
+I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. **Figure 2** illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
 
 ![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
@@ -260,7 +260,7 @@ I verify expected results by examining the settling time required for all quadco
 
 Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to all control inputs. Under these conditions, and with an initial perturbation of $-0.025$ applied to all states, I simulate the closed-loop system and measure a settling time of approximately 1.91 seconds. To achieve faster stabilization, I reduce the penalty on control effort by choosing $\mathbf{R} = 0.1\mathbf{I}$, allowing the controller to respond more aggressively to deviations.
 
-With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure 3 compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, Figure 4 compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
+With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. **Figure 3** compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, **Figure 4** compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
 
 ![Control Inputs for Balanced and More Aggressive Configurations](docs/control_efforts_comparison.png)
 
@@ -336,13 +336,13 @@ This equation represents the observer error dynamics. The matrix $\mathbf{A} - \
 ### Solving for the Observer Gains
 I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s `place()` function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
 
-Figure 5 displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
+**Figure 5** displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
 
 
 
 ![Observer Performance: Estimation Error and Roll Angle Tracking](docs/observer_performance.png)
 
-**Figure 5.** Observer Performance showing Estimation Error and Roll Angle Tracking.
+**Figure 5.** Observer Performance Showing Estimation Error and Roll Angle Tracking.
 
 
 ## Conclusion
@@ -354,6 +354,7 @@ To provide a means of assessing controller robustness, I implemented a Monte Car
 To illustrate, for $N=1500$, $\mathbf{x}_i$ and ${\mathbf{\dot{x}}_i}$ from $[-1, 1]$, and $\mathbf{Q}$ and $\mathbf{R}$ set to the identity matrix, the implementation yields the following distributions for settling time, thrust overhead, and overshoot, as well as the following summary statistics: 
 
 ![Monte Carlo Results](docs/monte_carlo_results.png)
+**Figure 6**. Example Settling Time, Thrust Overhead, and Overshoot Histograms Produced by Monte Carlo Robustness Assessment Framework I Implement.
 
 ```
 ==== Monte Carlo Results Summary =====
