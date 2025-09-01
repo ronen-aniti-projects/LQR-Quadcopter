@@ -20,7 +20,7 @@ I define the quadcopter's physical parameters. I represent the quadcopter as a r
 | Body Y-Axis Moment of Inertia            | *Iy*      | 0.02 kg·m²         |
 | Body Z-Axis Moment of Inertia            | *Iz*      | 0.04 kg·m²         |
 
-
+![Test](docs/image.png)
 ## Defining the Quadcopter's Degrees of Freedom
 I define the quadcopter's degrees of freedom. The quadcopter has six degrees of freedom, three translational and three rotational. I employ Euler angles to represent the three rotational degrees of freedom. The particular Euler angle sequence I employ for these derivations is the Z-Y-X Euler angle sequence. 
 
