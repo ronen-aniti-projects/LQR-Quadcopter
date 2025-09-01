@@ -218,7 +218,7 @@ To design the full-state feedback controller, I compute the optimal gain matrix 
 
 $$
 \begin{equation}
-    J = \int_0^\infty \left( \mathbf{x}^\top \mathbf{Q} \mathbf{x} + \mathbf{u}^\top \mathbf{R} \mathbf{u} \right) \, dt,
+    J = \int_0^\infty \left( \mathbf{x}^\top \mathbf{Q} \mathbf{x} + \mathbf{u}^\top \mathbf{R} \mathbf{u} \right)  dt,
 \end{equation}
 $$
 
