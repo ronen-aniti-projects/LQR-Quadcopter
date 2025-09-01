@@ -20,7 +20,7 @@ I define the quadcopter's physical parameters. I represent the quadcopter as a r
 | Body Y-Axis Moment of Inertia            | *Iy*      | 0.02 kg·m²         |
 | Body Z-Axis Moment of Inertia            | *Iz*      | 0.04 kg·m²         |
 
-![Test](docs/image.png)
+
 ## Defining the Quadcopter's Degrees of Freedom
 I define the quadcopter's degrees of freedom. The quadcopter has six degrees of freedom, three translational and three rotational. I employ Euler angles to represent the three rotational degrees of freedom. The particular Euler angle sequence I employ for these derivations is the Z-Y-X Euler angle sequence. 
 
@@ -31,9 +31,9 @@ I define the quadcopter's degrees of freedom. The quadcopter has six degrees of 
 | Linear Position    | X-coordinate            | x          |
 |                    | Y-coordinate            | y          |
 |                    | Z-coordinate            | z          |
-| Orientation        | Roll (about X-axis)     | φ (phi)    |
-|                    | Pitch (about Y-axis)    | θ (theta)  |
-|                    | Yaw (about Z-axis)      | ψ (psi)    |
+| Orientation        | Roll (about X-axis)     | φ     |
+|                    | Pitch (about Y-axis)    | θ   |
+|                    | Yaw (about Z-axis)      | ψ     |
 
 ## Defining the Quadcopter's State Variables
 I define the quadcopter's state variables. There are three state variables for linear position, three state variables for 3D orientation, three state variables for linear velocity, and three state variables for angular velocity. All state variables corresponding to linear position and linear velocity are world-frame coordinates. The angular displacement state variables are the Z-Y-X Euler angles. The angular velocity state variables are measured in the body frame. 
@@ -117,15 +117,10 @@ $$
 ## Applying the Linear Approximation at the Hover State
 I apply the notion of first-order Taylor series linear approximation to linearize the dynamics about the hover state. This process involves computing the Jacobian matrix of the state equations with respect to the states, computing the Jacobian matrix with respect to the input variables, evaluating both Jacobian matrices at the hover state, and combining them with the state and input vectors. The resulting linear model is valid for states near the hover state.
 
-$$
-\begin{equation}
-    \dot{\mathbf{x}} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{x} + 
-                       \left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{\mathbf{x}_0, \mathbf{u}_0} \mathbf{u} = 
-                       \mathbf{A} \mathbf{x} + \mathbf{B} \mathbf{u}.
-\end{equation}
-$$
 
-
+<p align="center">
+  <img src="docs/linearization.png" alt="Linearization" />
+</p>
 
 Furthermore, the resulting state-space model is linear time-invariant, therefore well suited for LQR controller design. The system's $\mathbf{A}$ and $\mathbf{B}$ are the following.
 
@@ -231,7 +226,7 @@ where $\mathbf{Q}$ is a symmetric positive semidefinite matrix that penalizes de
 
 $$
 \begin{equation}
-    \mathbf{A}^\top \mathbf{P} + \mathbf{P}\mathbf{A} - \mathbf{P}\mathbf{B}\mathbf{R}^{-1}\mathbf{B}^\top \mathbf{P} + \mathbf{Q} = 0.
+    \mathbf{A}^\top \mathbf{P} + \mathbf{P}\mathbf{A} - \mathbf{P}\mathbf{B}\mathbf{R}^{-1}\mathbf{B}^\top \mathbf{P} + \mathbf{Q} = \mathbf{0}.
 \end{equation}
 $$
 
@@ -243,21 +238,21 @@ $$
 \end{equation}
 $$
 
-I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure~\ref{fig:enter-label} illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
+I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure 1 illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
 
 
 ![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
 
-**Figure:** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I**₁₂ₓ₁₂ and **R** = **I**₄ₓ₄
+**Figure 1.** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I**₁₂ₓ₁₂ and **R** = **I**₄ₓ₄
 
 
-I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure~\ref{fig:enter-label} illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
+I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. Figure 2 illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
 
 
 ![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
 
-**Figure:** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I₁₂ₓ₁₂** and **R** = **I₄ₓ₄**
+**Figure 2.** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I₁₂ₓ₁₂** and **R** = **I₄ₓ₄**
 
 
 ## Verifying Expected Results
@@ -265,15 +260,15 @@ I verify expected results by examining the settling time required for all quadco
 
 Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to all control inputs. Under these conditions, and with an initial perturbation of $-0.025$ applied to all states, I simulate the closed-loop system and measure a settling time of approximately 1.91 seconds. To achieve faster stabilization, I reduce the penalty on control effort by choosing $\mathbf{R} = 0.1\mathbf{I}$, allowing the controller to respond more aggressively to deviations.
 
-With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure 2 compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, 3 compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
+With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. Figure 3 compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, Figure 4 compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
 
 ![Control Inputs for Balanced and More Aggressive Configurations](docs/control_efforts_comparison.png)
 
-**Figure 2.** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
+**Figure 3.** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
 
 ![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](docs/closed_loop_variants.png)
 
-**Figure 3.** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
+**Figure 4.** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
 
 
 For this project, I select the more aggressive controller for its reduced settling time. However, I acknowledge that in practice, factors such as actuator saturation, component constraints, and energy usage must be carefully considered to ensure the chosen parameters are appropriate for the physical system.
@@ -339,22 +334,22 @@ $$
 This equation represents the observer error dynamics. The matrix $\mathbf{A} - \mathbf{L}\mathbf{C}$ governs the stability of the error. To ensure the error converges to zero over time, I design $\mathbf{L}$ such that all eigenvalues of $\mathbf{A} - \mathbf{L}\mathbf{C}$ have strictly negative real parts.
 
 ### Solving for the Observer Gains
-I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s \texttt{place} function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
+I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s `place()` function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
 
-Figure 4 displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
+Figure 5 displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
 
 
 
 ![Observer Performance: Estimation Error and Roll Angle Tracking](docs/observer_performance.png)
 
-**Figure 4.** Observer Performance showing Estimation Error and Roll Angle Tracking.
+**Figure 5.** Observer Performance showing Estimation Error and Roll Angle Tracking.
 
 
 ## Conclusion
 In this project, I designed and simulated a full-state feedback control system for hover stabilization of a quadcopter drone, applying principles from ENME605 Advanced Systems Control. I derived the plant dynamics by taking the steps of defining the quadcopter's physical parameters, degrees of freedom, state variables, and control inputs;  deriving the quadcopter's nonlinear equations of motion; linearizing the equations of motion about the hover state (which involved casting the equations of motion into a state-space form and applying the linear approximation at the hover state); and verifying the controllability of the quadcopter. I proceeded to design the controller by deriving the closed-loop feedback control dynamics, solving for suitable control gains using the LQR optimal control framework, and improving upon the preliminary result through gain tuning. Finally, I designed an observer step-by-step first by verifying observability, then by deriving the observer's error dynamics and solving for the observer gains using the method of pole placement. The final result is a hover stabilization controller capable of returning a simulation drone to the hover state from perturbed states. 
 
 ## Follow Up: Aug. 31, 2025
-To provide a means of assessing controller robustness, I implemented a Monte Carlo-based performance assessment framework to demonstrate any given LQR controller's ability to stabilize quadcopter dynamics given randomly selected initial disturbances. For N trials, position and velocity disturbances are assigned randomly, from a uniform distribution bounded by $[\mathbf{x}_{i, low}, \mathbf{x}_{i, high}]$ $m$ for position and $[\mathbf{\dot{x}}_{i, low}, \mathbf{\dot{x}}_{i, high}]$ $m/s$ for velocity. With an LQR control law, defined by the user's input of $\mathbf{Q}$ and $\mathbf{R}$, and with the trial initial state, the trial closed-loop dynamics are simulated using the full nonlinear 6-DOF dynamics model for ground truth. For each trial, the following are tracked: (i) position overshoot, the maximum positional deviation from the equilibrium after crossing (if crossing occurs); (ii) thrust overhead, trial maximum thrust's excess above hover thrust; and (iii) settling time, the time it takes for all 12 states for a given trial to remain within tolerance of equilibrium if at all. The implementation presents results both in the form of histograms for settling time, thrust overhead, and overshoot and in the form of summary statistics. 
+To provide a means of assessing controller robustness, I implemented a Monte Carlo-based performance assessment framework to demonstrate any given LQR controller's ability to stabilize quadcopter dynamics given randomly selected initial disturbances. For N trials, position and velocity disturbances are assigned randomly, from a uniform distribution bounded by <img src="docs/sample_position_bounds.png" alt="Position Bounds" style="vertical-align: middle; height: 20px;" /> for position and <img src="docs/sample_velocity_bounds.png" alt="Velocity Bounds" style="vertical-align: middle; height: 20px;" />  for velocity. With an LQR control law, defined by the user's input of $\mathbf{Q}$ and $\mathbf{R}$, and with the trial initial state, the trial closed-loop dynamics are simulated using the full nonlinear 6-DOF dynamics model for ground truth. For each trial, the following are tracked: (i) position overshoot, the maximum positional deviation from the equilibrium after crossing (if crossing occurs); (ii) thrust overhead, trial maximum thrust's excess above hover thrust; and (iii) settling time, the time it takes for all 12 states for a given trial to remain within tolerance of equilibrium if at all. The implementation presents results both in the form of histograms for settling time, thrust overhead, and overshoot and in the form of summary statistics. 
 
 To illustrate, for $N=1500$, $\mathbf{x}_i$ and ${\mathbf{\dot{x}}_i}$ from $[-1, 1]$, and $\mathbf{Q}$ and $\mathbf{R}$ set to the identity matrix, the implementation yields the following distributions for settling time, thrust overhead, and overshoot, as well as the following summary statistics: 
 
