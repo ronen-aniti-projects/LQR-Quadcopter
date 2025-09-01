@@ -352,3 +352,23 @@ Figure 4 displays the observer’s performance, showing the estimation error for
 
 ## Conclusion
 In this project, I designed and simulated a full-state feedback control system for hover stabilization of a quadcopter drone, applying principles from ENME605 Advanced Systems Control. I derived the plant dynamics by taking the steps of defining the quadcopter's physical parameters, degrees of freedom, state variables, and control inputs;  deriving the quadcopter's nonlinear equations of motion; linearizing the equations of motion about the hover state (which involved casting the equations of motion into a state-space form and applying the linear approximation at the hover state); and verifying the controllability of the quadcopter. I proceeded to design the controller by deriving the closed-loop feedback control dynamics, solving for suitable control gains using the LQR optimal control framework, and improving upon the preliminary result through gain tuning. Finally, I designed an observer step-by-step first by verifying observability, then by deriving the observer's error dynamics and solving for the observer gains using the method of pole placement. The final result is a hover stabilization controller capable of returning a simulation drone to the hover state from perturbed states. 
+
+## Follow Up: Aug. 31, 2025
+To provide a means of assessing controller robustness, I implemented a Monte Carlo-based performance assessment framework to demonstrate any given LQR controller's ability to stabilize quadcopter dynamics given randomly selected initial disturbances. For N trials, position and velocity disturbances are assigned randomly, from a uniform distribution bounded by $[\mathbf{x}_{i, low}, \mathbf{x}_{i, high}]$ $m$ for position and $[\mathbf{\dot{x}}_{i, low}, \mathbf{\dot{x}}_{i, high}]$ $m/s$ for velocity. With an LQR control law, defined by the user's input of $\mathbf{Q}$ and $\mathbf{R}$, and with the trial initial state, the trial closed-loop dynamics are simulated using the full nonlinear 6-DOF dynamics model for ground truth. For each trial, the following are tracked: (i) position overshoot, the maximum positional deviation from the equilibrium after crossing (if crossing occurs); (ii) thrust overhead, trial maximum thrust's excess above hover thrust; and (iii) settling time, the time it takes for all 12 states for a given trial to remain within tolerance of equilibrium if at all. The implementation presents results both in the form of histograms for settling time, thrust overhead, and overshoot and in the form of summary statistics. 
+
+To illustrate, for $N=1500$, $\mathbf{x}_i$ and ${\mathbf{\dot{x}}_i}$ from $[-1, 1]$, and $\mathbf{Q}$ and $\mathbf{R}$ set to the identity matrix, the implementation yields the following distributions for settling time, thrust overhead, and overshoot, as well as the following summary statistics: 
+
+![Monte Carlo Results](docs/monte_carlo_results.png)
+
+```
+==== Monte Carlo Results Summary =====
+Settled: 1500 / 1500 (100.0%)
+Settling Time [s]: mean=4.330  median=4.400  p95=4.910
+Thrust Overhead [%]: mean=9.60  median=7.56  p95=22.37
+Overshoot [m]: mean=0.137  median=0.052  p95=0.510
+```
+
+The performance of this particular configuration might lead a researcher to assess the need for a larger $\mathbf{Q}$ if overshoot is expensive or a smaller $\mathbf{R}$ if aggressive maneuvers are tolerable. 
+
+
+
