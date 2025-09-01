@@ -354,7 +354,6 @@ To provide a means of assessing controller robustness, I implemented a Monte Car
 To illustrate, for $N=1500$, $\mathbf{x}_i$ and ${\mathbf{\dot{x}}_i}$ from $[-1, 1]$, and $\mathbf{Q}$ and $\mathbf{R}$ set to the identity matrix, the implementation yields the following distributions for settling time, thrust overhead, and overshoot, as well as the following summary statistics: 
 
 ![Monte Carlo Results](docs/monte_carlo_results.png)
-**Figure 6**. Example Settling Time, Thrust Overhead, and Overshoot Histograms Produced by the Monte Carlo LQR Robustness Assessment Framework I Have Implemented.
 
 ```
 ==== Monte Carlo Results Summary =====
