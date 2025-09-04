@@ -247,28 +247,20 @@ I implement this process in MATLAB, where I use numerical solvers to compute $\m
 **Figure 1.** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I**₁₂ₓ₁₂ and **R** = **I**₄ₓ₄
 
 
-I implement this process in MATLAB, where I use numerical solvers to compute $\mathbf{P}$ and subsequently calculate $\mathbf{K}$. After obtaining $\mathbf{K}$, I verify its correctness by ensuring that the eigenvalues of the closed-loop system matrix $\mathbf{A} - \mathbf{B}\mathbf{K}$ have strictly negative real parts. **Figure 2** illustrates the real-imaginary plot of these eigenvalues, confirming that the feedback system effectively stabilizes the quadcopter to the hover state.
-
-
-![The Real-Imaginary Plot of the Closed-Loop Eigenvalues](docs/closed_loop_eigenvalues.png)
-
-**Figure 2.** The Real-Imaginary Plot of the Closed-Loop Eigenvalues when **Q** = **I₁₂ₓ₁₂** and **R** = **I₄ₓ₄**
-
-
 ## Verifying Expected Results
 I verify expected results by examining the settling time required for all quadcopter states to return to equilibrium following a small initial perturbation from hover. To achieve this, I adjust the weighting matrices in the LQR cost function, changing the balance between penalizing state deviation and penalizing control effort.
 
 Initially, I set $\mathbf{R} = \mathbf{I}$, which applies an equal penalty to all control inputs. Under these conditions, and with an initial perturbation of $-0.025$ applied to all states, I simulate the closed-loop system and measure a settling time of approximately 1.91 seconds. To achieve faster stabilization, I reduce the penalty on control effort by choosing $\mathbf{R} = 0.1\mathbf{I}$, allowing the controller to respond more aggressively to deviations.
 
-With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. **Figure 3** compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, **Figure 4** compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
+With this adjustment, the system settles more quickly, requiring approximately 1.74 seconds to return to equilibrium. **Figure 2** compares the control inputs for both configurations, showing that the more aggressive controller (with $\mathbf{R} = 0.1\mathbf{I}$) applies greater control effort. Additionally, **Figure 3** compares the closed-loop eigenvalues for the two configurations, revealing that the reduced control penalty shifts the eigenvalues further to the left in the complex plane, indicating that the closed-loop system returns to equilibrium more rapidly.
 
 ![Control Inputs for Balanced and More Aggressive Configurations](docs/control_efforts_comparison.png)
 
-**Figure 3.** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
+**Figure 2.** Control Inputs for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Configurations.
 
 ![Closed-Loop Eigenvalues for Balanced and More Aggressive Controllers](docs/closed_loop_variants.png)
 
-**Figure 4.** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
+**Figure 3.** Closed-Loop Eigenvalues for the Balanced (**R** = **I**) and More Aggressive (**R** = 0.1**I**) Controllers.
 
 
 For this project, I select the more aggressive controller for its reduced settling time. However, I acknowledge that in practice, factors such as actuator saturation, component constraints, and energy usage must be carefully considered to ensure the chosen parameters are appropriate for the physical system.
@@ -336,13 +328,13 @@ This equation represents the observer error dynamics. The matrix $\mathbf{A} - \
 ### Solving for the Observer Gains
 I solve for the observer gains using the measurement matrix $\mathbf{C}'$. To design the observer, I select a set of desired eigenvalues for the matrix $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ and apply a pole placement method. Specifically, I choose the eigenvalues \([-20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31]\), ensuring that the observer error dynamics converge rapidly. I implement this procedure in MATLAB by first constructing the modified output matrix $\mathbf{C}'$ by removing the row corresponding to the roll angle measurement. Then, I use MATLAB’s `place()` function to compute the gain matrix $\mathbf{L}$, ensuring that $(\mathbf{A} - \mathbf{L}\mathbf{C}')$ has the desired eigenvalues. 
 
-**Figure 5** displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
+**Figure 4** displays the observer’s performance, showing the estimation error for all states and a comparison of the true and estimated roll angle over time. This figure validates that the observer effectively reconstructs the unmeasured state and that the estimation errors converge to zero with the chosen pole placements.
 
 
 
 ![Observer Performance: Estimation Error and Roll Angle Tracking](docs/observer_performance.png)
 
-**Figure 5.** Observer Performance Showing Estimation Error and Roll Angle Tracking.
+**Figure 4.** Observer Performance Showing Estimation Error and Roll Angle Tracking.
 
 
 ## Conclusion
